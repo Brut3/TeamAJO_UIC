@@ -47,7 +47,7 @@ public class ReturnMessageAssembler {
 			content = setContentToError(params);
 		}
 		
-		//Jos käyttäjä lähettää pelkän osoitteen, niin siinä ei oo parsittavaa
+		//Jos käyttäjä lähettää pelkän valokuvan, niin siinä ei oo parsittavaa
 		else if(params.get(0).equals("<kuva>")) {
 			System.out.println("PICTURE IN MESSAGE");
 			setSubject("Kiitos spottauksesta!");
@@ -60,17 +60,24 @@ public class ReturnMessageAssembler {
 		}
 		
 		//Jos kyseessä tavallinen spottaus
-		//jos valmistajan nimi on virheellinen (sis. ö tai Ö, niin välitetään tieto vastausmetodille
+		//jos tiedoissa on virheitä, niin välitetään tieto vastausmetodille
 		else if(params.get(0).equals("HISSI")) {
 			System.out.println("SPOTTING IN MESSAGE");
-			boolean errors = isManufacturerOK(params.get(2)) || isYearOK(params.get(3));
-			System.out.println("ERRORS: " + errors);
-			content = setContentToSpotting(params, errors);
+			boolean errorsFound = !isManufacturerOK(params.get(2)) || !isYearOK(params.get(3));
+			System.out.println("SMALL ERRORS FOUND IN MESSAGE: " + (errorsFound ? "YES" : "NO"));
+			if(errorsFound) {
+				setSubject("Kiitos spottauksesta! Ovatkohan tiedot oikein?");
+			}
+			else {
+				setSubject("Kiitos spottauksesta!");
+			}
+			content = setContentToSpotting(params, errorsFound);
 		}
 		
 		//Jos kyseessä on tietojen täydennys
 		else if(isValidID(params.get(0))) {
 			System.out.println("ADDITION IN MESSAGE, STARTING WITH ID");
+			setSubject("Kiitos lisätiedoista hissiin " + params.get(0) + "!");
 			content = setContentToComplement(params);
 		}
 		else if(!isValidID(params.get(0))) {
@@ -113,22 +120,21 @@ public class ReturnMessageAssembler {
 		return content;
 	}
 	
-	private String setContentToSpotting(List<String> params, boolean errors) {
+	private String setContentToSpotting(List<String> params, boolean errorsFound) {
 		String content ="";
 		content += "Hei, rane68!\n\nSpottaamasi hissi on nyt lisätty ElevatorSpottingiin tiedoilla:\n";
 		content += "Osoite: " + params.get(1) + "\n";
-		if(errors && (isManufacturerOK(params.get(2)))) { content += "*";
+		if(!isManufacturerOK(params.get(2))) content += "*";
 		content += "Valmistaja: " + params.get(2) + "\n";
-		if(errors && isYearOK(params.get(3))) content += "*";
+		if(!isYearOK(params.get(3))) content += "*";
 		content += "Valmistusvuosi: " + params.get(3) + "\n";
 		content += "Kerrosten lukumäärä: " + params.get(4) + "\n";
 		content += "Omat kommenttisi: \"" + params.get(5) + "\"\n\n";
-		if(errors = true) {
-			content += "*) Tähdellä merkityt tiedot ovat mahdollisesti virheellisiä. Tarkista hissin ";
-			if(errors && isManufacturerOK(params.get(2))) content += "valmistaja";
-			if(errors && isYearOK(params.get(3))) content += " ja valmistusvuosi";
-			content += "!\n\n";
-			}
+		if(errorsFound) {
+			content += "*) Tähdellä merkityt tiedot ovat mahdollisesti virheellisiä. Tarkista seuraavat tiedot:\n";
+			if(!isManufacturerOK(params.get(2))) content += "* Valmistaja\n";
+			if(!isYearOK(params.get(3))) content += "* Valmistusvuosi\n";
+			content += "\n";
 		}
 		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n";
 		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
@@ -153,7 +159,7 @@ public class ReturnMessageAssembler {
 	
 	//testaa, onko hissin valmistajan nimi oikea. Jos siinä on ö-kirjain, se ei ole.
 	private boolean isManufacturerOK(String v) {
-		return v.contains("Ö") || v.contains("ö");
+		return !(v.contains("Ö") || v.contains("ö"));
 	}
 
 	private String setContentToComplement(List<String> params) {
@@ -196,12 +202,12 @@ public class ReturnMessageAssembler {
 		String content ="";
 		content += "Hei!\n\n";
 		content += "Saimme viestisi, mutta siinä oli jotain vikaa. Viestisi oli tämä:\n\n";
-		for(int i = 0; i < params.size(); i++) {
-			if(i == params.size()-1) {
-				content += params.get(i);
-			}
-			else content += params.get(i) + "#";
+		//rakennetaan saatu viesti uudelleen lisäämällä #-merkit muualle, paitsi loppuun
+		for(String param : params) {
+			content += param + "#";
 		}
+		content = content.substring(0, content.length()-1);
+
 		content += "\n\nSpottausviesti tulee lähettää muodossa:\n";
 		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
 		content += "Niiden tietojen osalta, joita en tiedä, voit jättää kyseisen kohdan tyhjäksi.\n\n";

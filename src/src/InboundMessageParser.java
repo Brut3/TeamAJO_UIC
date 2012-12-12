@@ -27,6 +27,14 @@ public class InboundMessageParser {
 	}
 
 	private List<String> parseParameters(String paramString) {
-		return Arrays.asList(paramString.split("#"));
+		String paramString2 = paramString.replace("#", " # ");
+		List<String> params = Arrays.asList(paramString2.split("#"));
+		
+		List<String> params2 = new ArrayList<String>();
+		for(String param : params) {
+			String p = param.trim();
+			params2.add(p);
+		}
+		return params2;
 	}
 }
