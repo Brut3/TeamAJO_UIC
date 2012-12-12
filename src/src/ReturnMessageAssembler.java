@@ -41,8 +41,13 @@ public class ReturnMessageAssembler {
 
 		String content = "";
 
+		if(params.size() != 6 || params.size() != 1) {
+			setSubject("Spottauksesi oli virheellinen");
+			content = setContentToError(params);
+		}
+		
 		//Jos käyttäjä lähettää pelkän osoitteen, niin siinä ei oo parsittavaa
-		if(params.get(0).equals("<kuva>")) {
+		else if(params.get(0).equals("<kuva>")) {
 			setSubject("Kiitos spottauksesta!");
 			content = setContentToThanks(params);
 		}
@@ -53,17 +58,13 @@ public class ReturnMessageAssembler {
 		
 		//Jos kyseessä tavallinen spottaus
 		else if(params.get(0).equals("HISSI")) {
-			content = setContentToSpotting(params);
+			content = setContentToSpotting(params, false);
 		}
 		
 		//Jos kyseessä on tietojen täydennys
 		else if(isValidID(params.get(0))) {
 			content = setContentToComplement(params);
 		}
-				
-//		for(String param : params) {
-//			content += param + "\n";
-//		}
 		
 		return content;
 	}
@@ -98,9 +99,9 @@ public class ReturnMessageAssembler {
 		return content;
 	}
 	
-	private String setContentToSpotting(List<String> params) {
+	private String setContentToSpotting(List<String> params, boolean errors) {
 		String content ="";
-		content += "Hei!\n\nSpottaamasi hissi on nyt lisätty ElevatorSpottingiin tiedoilla:\n";
+		content += "Hei, rane68!\n\nSpottaamasi hissi on nyt lisätty ElevatorSpottingiin tiedoilla:\n";
 		content += "Osoite: " + params.get(1) + "\n";
 		content += "Valmistaja: " + params.get(2) + "\n";
 		content += "Valmistusvuosi: " + params.get(3) + "\n";
@@ -142,6 +143,19 @@ public class ReturnMessageAssembler {
 		content += "Mitä muuta tiedät hissistä? Vastaa tähän viestiin muodossa:\n\n";
 		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
 		content += "Muista kirjata hissin tunnistenumero 78392 viestin alkuun, esimerkin mukaisesti.\n\n";
+		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
+		return content;
+	}
+	
+	private String setContentToError(List<String> params) {
+		String content ="";
+		content += "Hei!\n\n";
+		content += "Saimme viestisi, mutta siinä oli jotain vikaa. Viestisi oli tämä:\n\n";
+		for(String param : params) {
+			content += param + "#";
+		}
+		content += "\n\nSpottausviesti tulee lähettää muodossa:\n";
+		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
 		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
 	}
