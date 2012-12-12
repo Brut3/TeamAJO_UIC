@@ -34,9 +34,6 @@ public class ReturnMessageAssembler {
 
 	public String generateMessageContent(List<String> params) {
 
-		//TODO Tanne voi lisailla parametrien kasittelyyn liittyvaa logiikkaa.
-
-
 		String content = "";
 
 		//Jos kŠyttŠjŠ lŠhettŠŠ pelkŠn osoitteen, niin siinŠ ei oo parsittavaa
@@ -55,10 +52,6 @@ public class ReturnMessageAssembler {
 			content = setContentToComplement(params);
 		}
 				
-//		for(String param : params) {
-//			content += param + "\n";
-//		}
-		
 		return content;
 	}
 
