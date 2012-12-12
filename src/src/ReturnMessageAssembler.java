@@ -13,6 +13,8 @@ public class ReturnMessageAssembler {
 
 	protected static String SENDER_ADDRESS = "test@elevatorspot.appspotmail.com";
 
+	private String subject = "Kiitos spottauksesta!";
+	
 	public Message assembleMessage(Address recipient, String msgSubject, String msgBody) {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
@@ -37,7 +39,11 @@ public class ReturnMessageAssembler {
 		String content = "";
 
 		//Jos käyttäjä lähettää pelkän osoitteen, niin siinä ei oo parsittavaa
-		if(params.size()==1) {
+		if(params.get(0).equals("<kuva>")) {
+			setSubject("Kiitos spottauksesta!");
+			content = setContentToThanks(params);
+		}
+		else if(params.size()==1) {
 			setSubject("Lisätietoja hissistä osoitteessa " + params.get(0));
 			content = setContentToInfo(params);
 		}
@@ -55,14 +61,14 @@ public class ReturnMessageAssembler {
 		return content;
 	}
 
+	
+
 	public String generateSubject() {
-		return "Kiitos spottauksesta!";
+		return subject;
 	}
 	
-	//Boenthoemetodi, joka periaatteessa vois asettaa uudeks viestin aiheeksi parametrissa annettavan.
-	//Arkkitehtuuri pitää vielä miettiä järkeväksi.
 	private void setSubject(String newSubject) {
-		return;
+		subject = newSubject;
 	}
 	
 	private String setContentToInfo(List<String> params) {
@@ -120,6 +126,16 @@ public class ReturnMessageAssembler {
 		content += "Muista kirjata hissin tunnistenumero "+ params.get(0) +" viestin alkuun, esimerkin mukaisesti.\n\n";
 
 		content += "Kiitos spottauksesta!\nElevator Spotting - your friend in life’s ups and downs.";
+		return content;
+	}
+	
+	private String setContentToThanks(List<String> params) {
+		String content ="";
+		content += "Hei, rane68! Kiitos spottauksesta!\n\n";
+		content += "Mitä muuta tiedät hissistä? Vastaa tähän viestiin muodossa:\n\n";
+		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
+		content += "Muista kirjata hissin tunnistenumero 78392 viestin alkuun, esimerkin mukaisesti.\n\n";
+		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
 	}
 	
