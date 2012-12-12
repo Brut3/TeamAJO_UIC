@@ -77,8 +77,15 @@ public class ReturnMessageAssembler {
 		//Jos kyseessä on tietojen täydennys
 		else if(isValidID(params.get(0))) {
 			System.out.println("ADDITION IN MESSAGE, STARTING WITH ID");
-			setSubject("Kiitos lisätiedoista hissiin " + params.get(0) + "!");
-			content = setContentToComplement(params);
+			boolean errorsFound = !isManufacturerOK(params.get(2)) || !isYearOK(params.get(3));
+			System.out.println("SMALL ERRORS FOUND IN MESSAGE: " + (errorsFound ? "YES" : "NO"));
+			if(errorsFound) {
+				setSubject("Kiitos lisätiedoista hissiin " + params.get(0) + "! " + "Ovatkohan tiedot oikein?");
+			}
+			else {
+				setSubject("Kiitos lisätiedoista hissiin " + params.get(0) + "!");
+			}
+			content = setContentToComplement(params, errorsFound);
 		}
 		else if(!isValidID(params.get(0))) {
 			System.out.println("ERROR IN MESSAGE");
@@ -124,9 +131,9 @@ public class ReturnMessageAssembler {
 		String content ="";
 		content += "Hei, rane68!\n\nSpottaamasi hissi on nyt lisätty ElevatorSpottingiin tiedoilla:\n";
 		content += "Osoite: " + params.get(1) + "\n";
-		if(!isManufacturerOK(params.get(2))) content += "*";
+		if(!isManufacturerOK(params.get(2))) content += "* ";
 		content += "Valmistaja: " + params.get(2) + "\n";
-		if(!isYearOK(params.get(3))) content += "*";
+		if(!isYearOK(params.get(3))) content += "* ";
 		content += "Valmistusvuosi: " + params.get(3) + "\n";
 		content += "Kerrosten lukumäärä: " + params.get(4) + "\n";
 		content += "Omat kommenttisi: \"" + params.get(5) + "\"\n\n";
@@ -146,38 +153,32 @@ public class ReturnMessageAssembler {
 
 		return content;
 	}
-	
-	//testaa, onko hissin valmistusvuosiluku valid, eli onko se numero ja onko se isompi kuin 1800.
-	private boolean isYearOK(String y) {
-		try {
-			int year = Integer.parseInt(y);
-			return year >= 1800;
-		} catch(NumberFormatException e) {
-			return false;
-		}
-	}
-	
-	//testaa, onko hissin valmistajan nimi oikea. Jos siinä on ö-kirjain, se ei ole.
-	private boolean isManufacturerOK(String v) {
-		return !(v.contains("Ö") || v.contains("ö"));
-	}
 
-	private String setContentToComplement(List<String> params) {
+	private String setContentToComplement(List<String> params, boolean errorsFound) {
 		String content ="";
-		content += "Hei!\n\nKiitos täydennyksestä hissin " + params.get(0) + " tietoihin!:\n";
+		content += "Hei, rane68!\n\nKiitos täydennyksestä hissin " + params.get(0) + " tietoihin!:\n";
 		content += "Hissi on nyt tallennettu seuraavin tiedoin:\n";
 		content += "Osoite: ";
-		content += (params.get(1).isEmpty() || params.get(1).equals(" ") ? "Leminkäisenkatu 7B, 02400 Espoo" : params.get(1)) + "\n";
+		content += (params.get(1).isEmpty() ? "Leminkäisenkatu 7B, 02400 Espoo" : params.get(1)) + "\n";
+		if(!isManufacturerOK(params.get(2))) content += "* ";
 		content += "Valmistaja: ";
-		content += (params.get(2).isEmpty() || params.get(2).equals(" ") ? "KONE" : params.get(2)) + "\n";
+		content += (params.get(2).isEmpty() ? "KONE" : params.get(2)) + "\n";
+		if(!isYearOK(params.get(3))) content += "* ";
 		content += "Valmistusvuosi: ";
-		content += (params.get(3).isEmpty() || params.get(3).equals(" ") ? "1989" : params.get(3)) + "\n";
+		content += (params.get(3).isEmpty() ? "1989" : params.get(3)) + "\n";
 		content += "Kerrosten lukumäärä: ";
-		content += (params.get(4).isEmpty() || params.get(4).equals(" ") ? "12" : params.get(4)) + "\n";
+		content += (params.get(4).isEmpty() ? "12" : params.get(4)) + "\n";
 		content += "Omat kommenttisi: \"";
-		content += (params.get(5).isEmpty() || params.get(5).equals(" ") ? 
+		content += (params.get(5).isEmpty() ? 
 				"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli." : params.get(5)) + "\"\n\n";
 
+		if(errorsFound) {
+			content += "*) Tähdellä merkityt tiedot ovat mahdollisesti virheellisiä. Tarkista seuraavat tiedot:\n";
+			if(!isManufacturerOK(params.get(2))) content += "* Valmistaja\n";
+			if(!isYearOK(params.get(3))) content += "* Valmistusvuosi\n";
+			content += "\n";
+		}
+		
 		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n";
 		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi\n\n";
 
@@ -215,7 +216,23 @@ public class ReturnMessageAssembler {
 		return content;
 	}
 	
-
+	
+	//testaa, onko hissin valmistusvuosiluku valid, eli onko se numero ja onko se isompi kuin 1800.
+	private boolean isYearOK(String y) {
+		if(y.equals("")) return true;
+		try {
+			int year = Integer.parseInt(y);
+			return year >= 1800;
+		} catch(NumberFormatException e) {
+			return false;
+		}
+	}
+	
+	//testaa, onko hissin valmistajan nimi oikea. Jos siinä on ö-kirjain, se ei ole.
+	private boolean isManufacturerOK(String v) {
+		return !(v.contains("Ö") || v.contains("ö"));
+	}
+	
 	//"testataan, löytyykö parametrina annettu id järjestelmän tietokannasta", eli käytännössä onko se numero
 	private boolean isValidID (String id) {
 		try {
