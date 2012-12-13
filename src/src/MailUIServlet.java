@@ -28,7 +28,7 @@ import javax.mail.internet.InternetAddress;
 @SuppressWarnings("serial")
 public class MailUIServlet extends HttpServlet {
 	
-	private static boolean PRODUCTION_MODE = true;
+	private static boolean PRODUCTION_MODE = false;
 
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
