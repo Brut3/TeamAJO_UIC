@@ -114,7 +114,7 @@ public class ReturnMessageAssembler {
 		content += "\"Kiihdytys oli aivan liian nopea, minulle tuli paha olo!\" -Pipsa<3\n\n";
 		
 		content += "Jos tiedot ovat virheellisiŠ, voit korjata ne vastaamalla tŠhŠn viestiin nŠin:\n\n";
-		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi\n\n";
+		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi#\n\n";
 
 		content += "Oikeiden tietojen osalta jŠtŠ kohta tyhjŠksi!\n";
 		content += "Muista kirjata hissin tunnistenumero 758933 viestin alkuun, esimerkin mukaisesti.";
@@ -140,7 +140,7 @@ public class ReturnMessageAssembler {
 			content += "\n";
 		}
 		content += "Jos tiedot ovat virheellisiŠ, voit korjata ne vastaamalla tŠhŠn viestiin nŠin:\n";
-		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi\n\n";
+		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi#\n\n";
 
 		content += "Oikeiden tietojen osalta jŠtŠ kohta tyhjŠksi!\n";
 		content += "Muista kirjata hissin tunnistenumero 758933 viestin alkuun, esimerkin mukaisesti.\n\n";
@@ -176,7 +176,7 @@ public class ReturnMessageAssembler {
 		}
 		
 		content += "Jos tiedot ovat virheellisiŠ, voit korjata ne vastaamalla tŠhŠn viestiin nŠin:\n";
-		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi\n\n";
+		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi#\n\n";
 
 		content += "Oikeiden tietojen osalta jŠtŠ kohta tyhjŠksi!\n";
 		content += "Muista kirjata hissin tunnistenumero "+ params.get(0) +" viestin alkuun, esimerkin mukaisesti.\n\n";
@@ -189,7 +189,7 @@ public class ReturnMessageAssembler {
 		String content ="";
 		content += "Hei, rane68! Kiitos spottauksesta!\n\n";
 		content += "MitŠ muuta tiedŠt hissistŠ? Vastaa tŠhŠn viestiin muodossa:\n\n";
-		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi\n\n";
+		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi#\n\n";
 		content += "Muista kirjata hissin tunnistenumero 78392 viestin alkuun, esimerkin mukaisesti.\n\n";
 		content +="YstŠvŠllisin terveisin,\nElevator Spotting - your friend in lifeÕs ups and downs.";
 		return content;
@@ -206,7 +206,7 @@ public class ReturnMessageAssembler {
 		content = content.substring(0, content.length()-1);
 
 		content += "\n\nSpottausviesti tulee lŠhettŠŠ muodossa:\n";
-		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi\n\n";
+		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumŠŠrŠ#omat kommenttisi#\n\n";
 		content += "Niiden tietojen osalta, joita en tiedŠ, voit jŠttŠŠ kyseisen kohdan tyhjŠksi.\n\n";
 		content +="YstŠvŠllisin terveisin,\nElevator Spotting - your friend in lifeÕs ups and downs.";
 		return content;
