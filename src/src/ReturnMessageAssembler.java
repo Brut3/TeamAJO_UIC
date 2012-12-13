@@ -12,7 +12,8 @@ import javax.mail.internet.MimeMessage;
 public class ReturnMessageAssembler {
 
 	protected static String SENDER_ADDRESS = "test@elevatorspot.appspotmail.com";
-
+	protected static String SENDER_NAME = "Elevatorspot";
+	
 	private String subject = "Kiitos spottauksesta!";
 	
 	public Message assembleMessage(Address recipient, String msgSubject, String msgBody) {
@@ -24,7 +25,7 @@ public class ReturnMessageAssembler {
 		try {
 			InternetAddress recipientAdress = new InternetAddress(recipient.toString());
 			msg = new MimeMessage(session);
-			msg.setFrom(new InternetAddress(SENDER_ADDRESS, "TEST"));      
+			msg.setFrom(new InternetAddress(SENDER_ADDRESS, SENDER_NAME));      
 			msg.addRecipient(Message.RecipientType.TO, recipientAdress);
 			msg.setSubject(msgSubject);
 			msg.setText(msgBody);
