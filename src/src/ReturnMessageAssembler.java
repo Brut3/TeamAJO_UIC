@@ -13,9 +13,9 @@ public class ReturnMessageAssembler {
 
 	protected static String SENDER_ADDRESS = "test@elevatorspot.appspotmail.com";
 	protected static String SENDER_NAME = "Elevatorspot";
-	
+
 	private String subject = "Kiitos spottauksesta!";
-	
+
 	public Message assembleMessage(Address recipient, String msgSubject, String msgBody) {
 		Properties props = new Properties();
 		Session session = Session.getDefaultInstance(props, null);
@@ -44,19 +44,13 @@ public class ReturnMessageAssembler {
 			setSubject("Spottauksesi oli virheellinen");
 			content = setContentToError(params);
 		}
-		
-		//Jos käyttäjä lähettää pelkän valokuvan, niin siinä ei oo parsittavaa
-		else if(params.get(0).equals("<kuva>")) {
-			System.out.println("PICTURE IN MESSAGE");
+
+		//Jos käyttäjä lähettää pelkän valokuvan tai komennon HISSI, niin siinä ei ole parsittavaa
+		else if(onlyOneParam(params) && (params.get(0).equals("<kuva>") || params.get(0).equalsIgnoreCase("hissi"))) {
+			System.out.println("PICTURE/\"HISSI\" IN MESSAGE");
 			setSubject("Kiitos spottauksesta!");
 			content = setContentToThanks(params);
 		}
-		else if(onlyAddress(params)) {
-			System.out.println("JUST ONE PARAMETER IN MESSAGE");
-			setSubject("Lisätietoja hissistä osoitteessa " + params.get(0));
-			content = setContentToInfo(params);
-		}
-		
 		//Jos kyseessä tavallinen spottaus
 		//jos tiedoissa on virheitä, niin välitetään tieto vastausmetodille
 		else if(params.get(0).equalsIgnoreCase("HISSI")) {
@@ -71,7 +65,13 @@ public class ReturnMessageAssembler {
 			}
 			content = setContentToSpotting(params, errorsFound);
 		}
-		
+
+		else if(onlyOneParam(params)) {
+			System.out.println("JUST ONE PARAMETER IN MESSAGE");
+			setSubject("Lisätietoja hisseistä osoitteessa " + params.get(0));
+			content = setContentToInfo(params);
+		}
+
 		//Jos kyseessä on tietojen täydennys
 		else if(isValidID(params.get(0))) {
 			System.out.println("ADDITION IN MESSAGE, STARTING WITH ID");
@@ -93,10 +93,10 @@ public class ReturnMessageAssembler {
 		return content;
 	}
 
-	
 
 
-	private boolean onlyAddress(List<String> params) {
+
+	private boolean onlyOneParam(List<String> params) {
 		for(int i = 1; i < params.size(); i++) {
 			if(!params.get(i).isEmpty()) {
 				return false;
@@ -108,33 +108,44 @@ public class ReturnMessageAssembler {
 	public String generateSubject() {
 		return subject;
 	}
-	
+
 	private void setSubject(String newSubject) {
 		subject = newSubject;
 	}
-	
+
 	private String setContentToInfo(List<String> params) {
 		String content = "";
-		content += "Hei!\n\nAntamastasi osoitteesta löytyi yksi hissi. Sen tiedot ovat tässä:\n";
-		content += "Osoite: " + params.get(0) +"\n";
-		content += "Valmistaja: KONE\nValmistusvuosi: 1989\n";
-		content += "Kerroksia: 12\n";
-		content += "Henkilömäärä: 6\n";
-		content += "Painorajoitus: 300 kg\n";
-		content += "Käyttäjien kommentit:\n";
-		content += "\"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli.\" -rane68,\n";
-		content += "\"Kiihdytys oli aivan liian nopea, minulle tuli paha olo!\" -Pipsa<3\n\n";
-		
-		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n\n";
-		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		content += "Hei, rane68!\nAntamastasi osoitteesta" + params.get(0) + " ";
 
-		content += "Oikeiden tietojen osalta jätä kohta tyhjäksi!\n";
-		content += "Muista kirjata hissin tunnistenumero 758933 viestin alkuun, esimerkin mukaisesti.";
+		//mielivaltainen ehto kuvaa sitä, löytyykö käyttäjän syöttämä osoite järjestelmän "tietokannasta":
+		if(params.get(0).contains("a")) {
+			content += "ei löytynyt yhtään hissiä. Oliko osoite varmasti oikea? Voit spotata" +
+					" hissin vastaamalla tähän viestiin näin:\n";
+			content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		}
+		else {
+			content += "löytyi yksi hissi. Sen tiedot ovat tässä:\n";
+			content += "Osoite: " + params.get(0) +"\n";
+			content += "Valmistaja: KONE\nValmistusvuosi: 1989\n";
+			content += "Kerroksia: 12\n";
+			content += "Henkilömäärä: 6\n";
+			content += "Painorajoitus: 300 kg\n";
+			content += "Käyttäjien kommentit:\n";
+			content += "\"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli.\" -rane68,\n";
+			content += "\"Kiihdytys oli aivan liian nopea, minulle tuli paha olo!\" -Pipsa<3\n\n";
 
+			content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n\n";
+			content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+
+			content += "Oikeiden tietojen osalta jätä kohta tyhjäksi!\n";
+			content += "Muista kirjata hissin tunnistenumero 758933 viestin alkuun, esimerkin mukaisesti.";
+
+		}
 		content +="Terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
+
 		return content;
 	}
-	
+
 	private String setContentToSpotting(List<String> params, boolean errorsFound) {
 		String content ="";
 		content += "Hei, rane68!\n\nSpottaamasi hissi on nyt lisätty ElevatorSpottingiin tiedoilla:\n";
@@ -192,7 +203,7 @@ public class ReturnMessageAssembler {
 			if(!isYearOK(params.get(3))) content += "* Valmistusvuosi\n";
 			content += "\n";
 		}
-		
+
 		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n";
 		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#henkilömäärä#painorajoitus#omat kommenttisi#\n\n";
 
@@ -202,7 +213,7 @@ public class ReturnMessageAssembler {
 		content += "Kiitos spottauksesta!\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
 	}
-	
+
 	private String setContentToThanks(List<String> params) {
 		String content ="";
 		content += "Hei, rane68! Kiitos spottauksesta!\n\n";
@@ -212,7 +223,7 @@ public class ReturnMessageAssembler {
 		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
 	}
-	
+
 	private String setContentToError(List<String> params) {
 		String content ="";
 		content += "Hei!\n\n";
@@ -229,8 +240,8 @@ public class ReturnMessageAssembler {
 		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
 	}
-	
-	
+
+
 	//testaa, onko hissin valmistusvuosiluku valid, eli onko se numero ja onko se isompi kuin 1800.
 	private boolean isYearOK(String y) {
 		if(y.equals("")) return true;
@@ -241,20 +252,20 @@ public class ReturnMessageAssembler {
 			return false;
 		}
 	}
-	
+
 	//testaa, onko hissin valmistajan nimi oikea. Jos siinä on ö-kirjain, se ei ole.
 	private boolean isManufacturerOK(String v) {
 		return !(v.contains("Ö") || v.contains("ö"));
 	}
-	
+
 	//"testataan, löytyykö parametrina annettu id järjestelmän tietokannasta", eli käytännössä onko se numero
 	private boolean isValidID (String id) {
 		try {
 			int i = Integer.parseInt(id);
 			return true;
- 		} catch(NumberFormatException e) {
- 			return false;
-	}
-		
+		} catch(NumberFormatException e) {
+			return false;
+		}
+
 	}
 }
