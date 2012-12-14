@@ -27,16 +27,16 @@ public class InboundMessageParser {
 	}
 
 	private List<String> parseParameters(String paramString) {
-		while(count(paramString, '#') < 6) {
+		while(count(paramString, '#') < 8) {
 			paramString = paramString.concat("#");
 		}
 		String paramString2 = paramString.replace("#", " # ");	
 		List<String> params = Arrays.asList(paramString2.split("#"));
 		ArrayList<String> params2 = new ArrayList<String>();
 		
-		for(int i = 0; i < 6; i++) {
+		for(int i = 0; i < 8; i++) {
 			params2.add(params.get(i).trim());
-		}		
+		}
 
 		System.out.println(params2);
 		System.out.println("SIZE: " + params2.size());

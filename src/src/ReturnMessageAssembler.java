@@ -39,7 +39,7 @@ public class ReturnMessageAssembler {
 
 		String content = "";
 
-		if(params.size() != 6 && params.size() != 1) {
+		if(params.size() != 8 || params.get(0).isEmpty()) {
 			System.out.println("ERROR IN MESSAGE: param count: " + params.size());
 			setSubject("Spottauksesi oli virheellinen");
 			content = setContentToError(params);
@@ -51,7 +51,7 @@ public class ReturnMessageAssembler {
 			setSubject("Kiitos spottauksesta!");
 			content = setContentToThanks(params);
 		}
-		else if(params.size()==1) {
+		else if(onlyAddress(params)) {
 			System.out.println("JUST ONE PARAMETER IN MESSAGE");
 			setSubject("Lisätietoja hissistä osoitteessa " + params.get(0));
 			content = setContentToInfo(params);
@@ -59,7 +59,7 @@ public class ReturnMessageAssembler {
 		
 		//Jos kyseessä tavallinen spottaus
 		//jos tiedoissa on virheitä, niin välitetään tieto vastausmetodille
-		else if(params.get(0).equals("HISSI")) {
+		else if(params.get(0).equalsIgnoreCase("HISSI")) {
 			System.out.println("SPOTTING IN MESSAGE");
 			boolean errorsFound = !isManufacturerOK(params.get(2)) || !isYearOK(params.get(3));
 			System.out.println("SMALL ERRORS FOUND IN MESSAGE: " + (errorsFound ? "YES" : "NO"));
@@ -95,6 +95,16 @@ public class ReturnMessageAssembler {
 
 	
 
+
+	private boolean onlyAddress(List<String> params) {
+		for(int i = 1; i < params.size(); i++) {
+			if(!params.get(i).isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
 	public String generateSubject() {
 		return subject;
 	}
@@ -108,7 +118,9 @@ public class ReturnMessageAssembler {
 		content += "Hei!\n\nAntamastasi osoitteesta löytyi yksi hissi. Sen tiedot ovat tässä:\n";
 		content += "Osoite: " + params.get(0) +"\n";
 		content += "Valmistaja: KONE\nValmistusvuosi: 1989\n";
-		content += "Kerroksia: \n";
+		content += "Kerroksia: 12\n";
+		content += "Henkilömäärä: 6\n";
+		content += "Painorajoitus: 300 kg\n";
 		content += "Käyttäjien kommentit:\n";
 		content += "\"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli.\" -rane68,\n";
 		content += "\"Kiihdytys oli aivan liian nopea, minulle tuli paha olo!\" -Pipsa<3\n\n";
@@ -132,7 +144,9 @@ public class ReturnMessageAssembler {
 		if(!isYearOK(params.get(3))) content += "* ";
 		content += "Valmistusvuosi: " + params.get(3) + "\n";
 		content += "Kerrosten lukumäärä: " + params.get(4) + "\n";
-		content += "Omat kommenttisi: \"" + params.get(5) + "\"\n\n";
+		content += "Henkilömäärä: " + params.get(5) + "\n";
+		content += "Painorajoitus: " + params.get(6) + " kg\n";
+		content += "Omat kommenttisi: \"" + params.get(7) + "\"\n\n";
 		if(errorsFound) {
 			content += "*) Tähdellä merkityt tiedot ovat mahdollisesti virheellisiä. Tarkista seuraavat tiedot:\n";
 			if(!isManufacturerOK(params.get(2))) content += "* Valmistaja\n";
@@ -140,7 +154,7 @@ public class ReturnMessageAssembler {
 			content += "\n";
 		}
 		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n";
-		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		content += "758933#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#henkilömäärä#painorajoitus#omat kommenttisi#\n\n";
 
 		content += "Oikeiden tietojen osalta jätä kohta tyhjäksi!\n";
 		content += "Muista kirjata hissin tunnistenumero 758933 viestin alkuun, esimerkin mukaisesti.\n\n";
@@ -164,9 +178,13 @@ public class ReturnMessageAssembler {
 		content += (params.get(3).isEmpty() ? "1989" : params.get(3)) + "\n";
 		content += "Kerrosten lukumäärä: ";
 		content += (params.get(4).isEmpty() ? "12" : params.get(4)) + "\n";
+		content += "Henkilömäärä: ";
+		content += (params.get(5).isEmpty() ? "6" : params.get(5)) + "\n";
+		content += "Painorajoitus: ";
+		content += (params.get(6).isEmpty() ? "300" : params.get(6)) + " kg\n";
 		content += "Omat kommenttisi: \"";
-		content += (params.get(5).isEmpty() ? 
-				"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli." : params.get(5)) + "\"\n\n";
+		content += (params.get(7).isEmpty() ? 
+				"Aika korkea ja ruma hissi, en muista montako kerrosta siinä oli." : params.get(7)) + "\"\n\n";
 
 		if(errorsFound) {
 			content += "*) Tähdellä merkityt tiedot ovat mahdollisesti virheellisiä. Tarkista seuraavat tiedot:\n";
@@ -176,7 +194,7 @@ public class ReturnMessageAssembler {
 		}
 		
 		content += "Jos tiedot ovat virheellisiä, voit korjata ne vastaamalla tähän viestiin näin:\n";
-		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		content += params.get(0) +"#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#henkilömäärä#painorajoitus#omat kommenttisi#\n\n";
 
 		content += "Oikeiden tietojen osalta jätä kohta tyhjäksi!\n";
 		content += "Muista kirjata hissin tunnistenumero "+ params.get(0) +" viestin alkuun, esimerkin mukaisesti.\n\n";
@@ -189,7 +207,7 @@ public class ReturnMessageAssembler {
 		String content ="";
 		content += "Hei, rane68! Kiitos spottauksesta!\n\n";
 		content += "Mitä muuta tiedät hissistä? Vastaa tähän viestiin muodossa:\n\n";
-		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		content += "78392#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#henkilömäärä#painorajoitus#omat kommenttisi#\n\n";
 		content += "Muista kirjata hissin tunnistenumero 78392 viestin alkuun, esimerkin mukaisesti.\n\n";
 		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
@@ -206,7 +224,7 @@ public class ReturnMessageAssembler {
 		content = content.substring(0, content.length()-1);
 
 		content += "\n\nSpottausviesti tulee lähettää muodossa:\n";
-		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#omat kommenttisi#\n\n";
+		content += "HISSI#osoite#valmistaja#valmistusvuosi#kerrosten lukumäärä#henkilömäärä#painorajoitus#omat kommenttisi#\n\n";
 		content += "Niiden tietojen osalta, joita en tiedä, voit jättää kyseisen kohdan tyhjäksi.\n\n";
 		content +="Ystävällisin terveisin,\nElevator Spotting - your friend in life’s ups and downs.";
 		return content;
