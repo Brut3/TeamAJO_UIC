@@ -157,7 +157,7 @@ public class ReturnMessageAssembler {
 		content += "Kerrosten lukumŠŠrŠ: " + params.get(4) + "\n";
 		content += "HenkilšmŠŠrŠ: " + params.get(5) + "\n";
 		content += "Painorajoitus: " + params.get(6) + " kg\n";
-		content += "Omat kommenttisi: \"" + params.get(7) + "\"\n\n";
+		content += "Omat kommenttisi: \"" + params.get(7).substring(0, 159) + "\"\n\n";
 		if(errorsFound) {
 			content += "*) TŠhdellŠ merkityt tiedot ovat mahdollisesti virheellisiŠ. Tarkista seuraavat tiedot:\n";
 			if(!isManufacturerOK(params.get(2))) content += "* Valmistaja\n";
@@ -194,8 +194,8 @@ public class ReturnMessageAssembler {
 		content += "Painorajoitus: ";
 		content += (params.get(6).isEmpty() ? "300" : params.get(6)) + " kg\n";
 		content += "Omat kommenttisi: \"";
-		content += (params.get(7).isEmpty() ? 
-				"Aika korkea ja ruma hissi, en muista montako kerrosta siinŠ oli." : params.get(7)) + "\"\n\n";
+		content += (params.get(7).substring(0, 159).isEmpty() ? 
+				"Aika korkea ja ruma hissi, en muista montako kerrosta siinŠ oli." : params.get(7).substring(0, 159)) + "\"\n\n";
 
 		if(errorsFound) {
 			content += "*) TŠhdellŠ merkityt tiedot ovat mahdollisesti virheellisiŠ. Tarkista seuraavat tiedot:\n";
